@@ -15,7 +15,7 @@ void function FSCC_CommandCallback_Help( entity player, array<string> args )
 		int index = 0
 		foreach ( string cmd in commands )
 		{
-			if ( cmd.find( args[ 0 ].tolower() ) )
+			if ( cmd.find( args[ 0 ].tolower() ) != null )
 				break
 
 			index++
