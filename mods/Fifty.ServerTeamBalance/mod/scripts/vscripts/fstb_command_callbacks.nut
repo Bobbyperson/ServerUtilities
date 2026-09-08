@@ -13,7 +13,7 @@ void function FSTB_CommandCallback_Switch( entity player, array< string > args )
 	}
 
 	entity target
-	if( FSA_IsAdmin( player ) && args.len() != 0 ) {
+	if( FSU_IsAdmin( player ) && args.len() != 0 ) {
 		foreach( entity p in GetPlayerArray() ){
 			if( p.GetPlayerName() == args[0] ) // Maybe this should have .tolower()?? TF displays names in all-caps in many cases
 				target = p

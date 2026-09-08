@@ -5,6 +5,13 @@ The mod is separated into modules all of which have extensive settings and apart
 
 ### [Documentation](https://github.com/F1F7Y/ServerUtilities/blob/main/docs/docs_index.md)
 
+## Administrator setup
+No owner UIDs, admin UIDs, passwords, or user tags are enabled by default. Configure `FSA_ADMIN_UIDS` and `FSA_ADMIN_PASSWORDS` with matching comma-separated entries before using admin commands. Set `FSA_OWNERS` separately if you want owner chat tags; it does not grant admin access.
+
+Existing server configuration overrides these defaults. When upgrading, remove any shipped example UIDs and passwords from your configuration and replace them with your own.
+
+ServerAdmin remains optional. Without it, voting and team switching work for ordinary players, but admin-only commands and force overrides are unavailable.
+
 All commands are case insensitive ( e.g. `commandFor` and `comandfor` are the same command ).
 
 ## Commands
@@ -52,6 +59,8 @@ All commands are case insensitive ( e.g. `commandFor` and `comandfor` are the sa
 *`!kick <player>`* - Kicks the given player.
 
 *`!commandfor <player> <command>`* - Executes a command for a player
+
+The nested command may include or omit the command prefix, followed by its arguments (for example, `!commandfor PlayerName rules all`). The target player must be allowed to use that command.
 
 ## Other features
 *`Killstreaks`* - Display a message or RUI pop up when someone is on a Killstreak.

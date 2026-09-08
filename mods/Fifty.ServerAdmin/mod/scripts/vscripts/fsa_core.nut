@@ -117,7 +117,6 @@ array< entity > function FSA_GetLoggedInAdmins() {
 */
 ClServer_MessageStruct function FSA_CheckMessageForPrivilegedUser( ClServer_MessageStruct message ) {
 	if( message.message.find( GetConVarString( "FSCC_PREFIX" ) ) == 0 || message.message.len() == 0 || message.shouldBlock ) {
-		message.shouldBlock = true
 		return message
 	}
 
@@ -394,9 +393,13 @@ void function FSCC_CommandCallback_CommandFor(entity player, array<string> args)
 		return
 	}
 	//copied from the REAL code
+	string commandPrefix = GetConVarString( "FSCC_PREFIX" ).tolower()
 	string command = args[1].tolower()
-	args.remove(1)
+	if( command.find( commandPrefix ) != 0 )
+		command = commandPrefix + command
 
+	args.remove(1)
+	args.remove(0)
 
 	FSCC_CommandStruct commandInfo
 	bool foundCommand = false
@@ -404,14 +407,14 @@ void function FSCC_CommandCallback_CommandFor(entity player, array<string> args)
 	// Find command
 	foreach( string c, FSCC_CommandStruct cm in commandsList ) {
 		// Check command
-		if( c == command ) {
+		if( c.tolower() == command ) {
 			commandInfo = cm
 			foundCommand = true
 		}
 
 		// Check abbreviations
 		foreach( string a in cm.m_Abbreviations ) {
-			if( ( GetConVarString( "FSCC_PREFIX" ) + a ) == command ) {
+			if( commandPrefix + a.tolower() == command ) {
 				commandInfo = cm
 				foundCommand = true
 			}

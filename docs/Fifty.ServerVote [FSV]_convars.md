@@ -46,6 +46,8 @@
 #### `FSV_MAP_REPLAY_LIMIT`
 **DefaultValue:** `"3"`
 
+At map initialization, the limit is capped at one less than the number of distinct, recognized maps in `FSV_MAP_ROTATION`, leaving at least one eligible map. Empty and single-map rotations use a maximum limit of zero.
+
 #### `FSV_CUSTOM_MAP_ROTATION`
 **DefaultValue:** `"1"`
 
@@ -57,4 +59,3 @@
 
 #### `FSV_MAP_VOTE_ONLY`
 **DefaultValue:** `"mp_crashsite3,mp_complex3,mp_homestead,mp_rise"`
-

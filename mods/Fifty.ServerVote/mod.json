@@ -114,10 +114,7 @@
 		},
 		{
 			"Path": "fsv_localization.nut",
-			"RunOn": "SERVER && MP",
-			"ServerCallback": {
-				"After": "FSV_Localization_Init"
-			}
+			"RunOn": "SERVER && MP"
 		}
 	]
 }

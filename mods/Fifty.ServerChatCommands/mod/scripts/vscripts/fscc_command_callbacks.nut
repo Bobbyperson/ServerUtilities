@@ -20,7 +20,7 @@ void function FSCC_CommandCallback_Help( entity player, array< string > args ) {
 		}
 		if( index != commands.len() ) {
 			FSCC_CommandStruct cmdInfo = FSCC_GetCommandAttributes( commands[index] )
-			if( cmdInfo.m_UsageAdmin != "" && FSA_IsAdmin( player ) )
+			if( cmdInfo.m_UsageAdmin != "" && FSU_IsAdmin( player ) )
 				FSU_PrivateChatMessage( player, "%H%P" + cmdInfo.m_UsageAdmin )
 			else
 				FSU_PrivateChatMessage( player, "%H%P" + cmdInfo.m_UsageUser )

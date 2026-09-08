@@ -2,6 +2,7 @@ globalize_all_functions
 
 array <entity> extendVoters
 int extendThreshold
+bool extendPassed = false
 
 array<entity> skipVoters
 int skipThreshold
@@ -9,6 +10,7 @@ int skipThreshold
 struct KickInfo {
 	array<string> voters
 	int threshold
+	bool passed = false
 }
 table <string, KickInfo> kickTable = {}
 array <string> playersWithActiveVotes
@@ -54,6 +56,10 @@ void function FSV_CommandCallback_NextMap( entity player, array< string > args )
 		return
 	}
 
+	bool forceMap = FSU_IsAdmin( player ) && args.len() >= 2 && args[args.len()-1].tolower() == "force"
+	if( forceMap )
+		args.remove( args.len() - 1 )
+
 	string mapVoteName = ""
 	string mapVoteId = ""
 	string joinedArg = ""
@@ -68,7 +74,7 @@ void function FSV_CommandCallback_NextMap( entity player, array< string > args )
 	}
 	if( mapVoteId == "" ){
 		foreach( string map in maps ){
-			if( StringReplace( map, " ", "", true, false ).tolower().find( joinedArg ) != null){
+			if( StringReplace( map, " ", "", true, false ).tolower().find( joinedArg.tolower() ) != null){
 				if( mapVoteId != "" ){
 					FSU_PrivateChatMessage(player, "%EMore than one matching map! %TWrite a bit more of the name.")
 					return
@@ -84,14 +90,9 @@ void function FSV_CommandCallback_NextMap( entity player, array< string > args )
 		return
 	}
 
-	if( FSA_IsAdmin( player ) && args.len() >= 2 ) {
-		if( args[args.len()-1].tolower() == "force" ) {
-			GameRules_ChangeMap( mapVoteId, GAMETYPE )
-			return
-		} else {
-			FSU_PrivateChatMessage( player, "Use %H%Pnextmap <map> force%T to forcefully change the map.")
-			return
-		}
+	if( forceMap ) {
+		GameRules_ChangeMap( mapVoteId, GAMETYPE )
+		return
 	}
 
 	if ( mapVoteId == GetMapName() && FSU_GetSettingIntFromConVar("FSV_MAP_REPLAY_LIMIT") > 0 ) {
@@ -132,7 +133,7 @@ void function FSV_CommandCallback_NextMap( entity player, array< string > args )
  * @param args The arguments passed by the player
 */
 void function FSV_CommandCallback_Skip( entity player, array< string > args ) {
-	if( FSA_IsAdmin( player ) && args.len() >= 1 ) {
+	if( FSU_IsAdmin( player ) && args.len() >= 1 ) {
 		if( args[0].tolower() == "force" ) {
 			FSV_SkipMatch()
 		} else {
@@ -247,7 +248,7 @@ void function FSV_SkipThread(){
 */
 void function FSV_CommandCallback_Extend( entity player, array< string > args ) {
 
-	if( FSA_IsAdmin( player ) && args.len() >= 1 ) {
+	if( FSU_IsAdmin( player ) && args.len() >= 1 ) {
 		FSV_ExtendMatch( float( args[0].tointeger() ) )
 		FSU_PrivateChatMessage( player, "%SExtended match." )
 		return
@@ -261,8 +262,13 @@ void function FSV_CommandCallback_Extend( entity player, array< string > args ) 
 	}
 
 	if (extendVoters.len() == 0) {
+		extendPassed = false
 		extendThreshold = int(ceil(GetPlayerArray().len() * GetConVarFloat("FSV_MAP_EXTENDING_PERCENTAGE")))
 		thread FSV_ExtendThread()
+	}
+	if( extendPassed ) {
+		FSU_PrivateChatMessage( player, "%SThe vote to extend has already passed!" )
+		return
 	}
 
 	if (!extendVoters.contains(player)) {
@@ -271,6 +277,7 @@ void function FSV_CommandCallback_Extend( entity player, array< string > args ) 
 	}
 
 	if (extendVoters.len() >= extendThreshold) {
+		extendPassed = true
 		FSV_ExtendMatch( 20.0 )
 	}
 }
@@ -366,7 +373,7 @@ void function FSV_CommandCallback_Kick( entity player, array<string> args) {
 	}
 
 	foreach(string uid in playersWithActiveVotes){
-		if (uid == player.GetUID() && !(FSA_IsAdmin(player)) ){
+		if (uid == player.GetUID() && !(FSU_IsAdmin(player)) ){
 			FSU_PrivateChatMessage(player, "%EYou can only have one kickvote active at a time! %TWait for the current one to expire or succeed before starting another.")
 			return
 		}
@@ -390,11 +397,11 @@ void function FSV_CommandCallback_Kick( entity player, array<string> args) {
 	}
 	if( target == null ){
 		//check for numbers in playerlist
-		if( args[0] == "0" || ( args[0].tointeger() > 0 && args[0].tointeger() < GetPlayerArray().len()-1 ) ){
-			entity p = FSA_GetPlayerEntityByName(args[0])
-			if( p != null ){
-				target = p
-			}
+		if( regexp("^[0-9]+$").match( args[0] ) ){
+			int index = args[0].tointeger()
+			array<entity> players = GetPlayerArray()
+			if( index >= 0 && index < players.len() )
+				target = players[index]
 		}
 	}
 	if(target == null){
@@ -410,9 +417,9 @@ void function FSV_CommandCallback_Kick( entity player, array<string> args) {
 		return
 	}
 
-	if (FSA_IsAdmin(player) && args.len() == 2 && args[1] == "force") {
+	if (FSU_IsAdmin(player) && args.len() == 2 && args[1] == "force") {
 		// allow admins to force kick spoofed admins
-		if (FSA_IsAdmin(target)) {
+		if (FSU_IsAdmin(target)) {
 			FSU_PrivateChatMessage(player, "%EYou can't kick an authenticated admin!")
 			return
 		}
@@ -423,13 +430,13 @@ void function FSV_CommandCallback_Kick( entity player, array<string> args) {
 		return
 	}
 
-	if (FSA_IsAdmin(target)) {
+	if (FSU_IsAdmin(target)) {
 		FSU_PrivateChatMessage(player, "%EYou can't kick an admin.")
 		return
 	}
 
 	// check if admin
-	if (FSA_IsAdmin(player)){
+	if (FSU_IsAdmin(player)){
 		FSU_PrivateChatMessage(player, "%AYou are admin, you can force kick: %H%Pkick " + args[0] + " force")
 	}
 
@@ -442,6 +449,10 @@ void function FSV_CommandCallback_Kick( entity player, array<string> args) {
 	// ensure kicked player is in kickTable
 	if (targetUid in kickTable) {
 		KickInfo kickInfo = kickTable[targetUid]
+		if( kickInfo.passed ) {
+			FSU_PrivateChatMessage( player, "%SThe vote to kick this player has already passed!" )
+			return
+		}
 		if (!kickInfo.voters.contains(player.GetUID())){
 			kickInfo.voters.append(player.GetUID())
 		}
@@ -464,25 +475,18 @@ void function FSV_CommandCallback_Kick( entity player, array<string> args) {
 	array <string> kickedPlayers = FSU_GetSelectedArrayFromConVar("FSV_KICK_BLOCK", 0)
 	KickInfo kickInfo = kickTable[targetUid]
 	if (kickInfo.voters.len() >= kickInfo.threshold) {
+		kickInfo.passed = true
 		FSU_Print( targetName + " was kicked by player vote!" )
-		string playerUid = target.GetUID()
-		if (kickedPlayers.contains(playerUid)) {
-			kickedPlayers.append(playerUid)
-
-			array <string> kicked = FSU_GetSelectedArrayFromConVar("FSV_KICK_BLOCK", 0)
+		if (FSU_GetSettingIntFromConVar("FSV_KICK_BLOCK") > 0 && !kickedPlayers.contains(targetUid)) {
 			array <string> kickedfor = FSU_GetSelectedArrayFromConVar	("FSV_KICK_BLOCK", 1)
-			kicked.append(targetUid)
+			kickedPlayers.append(targetUid)
 			kickedfor.append("0")
-			array <array <string> > newKickedArray = [kicked, kickedfor]
+			array <array <string> > newKickedArray = [kickedPlayers, kickedfor]
 			FSU_SaveArrayArrayToConVar("FSV_KICK_BLOCK", newKickedArray)
 		}
 
-		ServerCommand("kick " + player.GetPlayerName())
-		if( playersWithActiveVotes.find( kickInfo.voters[0] ) > -1 )
-			playersWithActiveVotes.remove( playersWithActiveVotes.find( kickInfo.voters[0] ) )
-		if (targetUid in kickTable) {
-			delete kickTable[targetUid]
-		}
+		ServerCommand("kick " + target.GetPlayerName())
+		// The vote thread owns state and UI cleanup after announcing the result.
 	}
 	return
 }

@@ -94,7 +94,7 @@ void function FSM_OnPlayerKilled( entity victim, entity attacker, var damageInfo
 	}
 
 	if( GetConVarBool( "FSM_PLAYER_KILLSTREAK" ) ) {
-		if( victim.IsPlayer() && attacker.IsPlayer() ) {
+		if( victim.IsPlayer() ) {
 			FSM_UpdateKillstreakInformation( victim, attacker )
 		}
 	}

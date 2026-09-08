@@ -69,6 +69,17 @@ void function FSU_PrintPrematchMessage() {
 }
 
 /**
+ * Checks admin access without requiring the optional ServerAdmin module.
+*/
+bool function FSU_IsAdmin( entity player ) {
+#if FSA_ENABLED
+	return FSA_IsAdmin( player )
+#else
+	return false
+#endif
+}
+
+/**
  * Prints a message to the console and prepends "[FSU][ERRR]" to it
  * @param mesage The message to be printed to console
 */

@@ -7,9 +7,19 @@ table <entity, string> mapVoteTable = {}
  * Gets called after the map is loaded
 */
 void function FSV_Init() {
-	int numberOfMapsInRotation = split( GetConVarString( "FSV_MAP_ROTATION" ), "," ).len()
-	if( FSU_GetSettingIntFromConVar("FSV_MAP_REPLAY_LIMIT") > numberOfMapsInRotation ){
-		SetConVarInt("FSV_MAP_REPLAY_LIMIT", numberOfMapsInRotation - 1 )
+	FSV_Localization_Init()
+	array<string> rotationMaps
+	foreach( string map in FSV_GetMapArrayFromConVar( "FSV_MAP_ROTATION" ) ) {
+		if( !rotationMaps.contains( map ) )
+			rotationMaps.append( map )
+	}
+	int maxReplayLimit = int( max( 0, rotationMaps.len() - 1 ) )
+	if( FSU_GetSettingIntFromConVar("FSV_MAP_REPLAY_LIMIT") > maxReplayLimit ){
+		array<string> playedMaps = FSU_GetArrayFromConVar( "FSV_MAP_REPLAY_LIMIT" )
+		while( playedMaps.len() > maxReplayLimit )
+			playedMaps.remove( 0 )
+		SetConVarInt("FSV_MAP_REPLAY_LIMIT", maxReplayLimit )
+		FSU_SaveArrayToConVar( "FSV_MAP_REPLAY_LIMIT", playedMaps )
 		FSU_Error("Map replay limit is set too high! There are not enough maps in rotation to block that many recent maps.")
 	}
 
@@ -27,7 +37,7 @@ void function FSV_Init() {
 	command.m_Abbreviations = [ "nm", "maps", "map" ]
 	command.Callback = FSV_CommandCallback_NextMap
 	if( !GetConVarBool( "FSV_ENABLE_MAP_VOTING" ) )
-		command.PlayerCanUse = FSA_IsAdmin
+		command.PlayerCanUse = FSU_IsAdmin
 	FSCC_RegisterCommand( "nextmap", command )
 	command.PlayerCanUse = null
 
@@ -38,7 +48,7 @@ void function FSV_Init() {
 	command.m_Abbreviations = []
 	command.Callback = FSV_CommandCallback_Skip
 	if( !GetConVarBool( "FSV_ENABLE_MAP_SKIPPING" ) )
-		command.PlayerCanUse = FSA_IsAdmin
+		command.PlayerCanUse = FSU_IsAdmin
 	FSCC_RegisterCommand( "skip", command )
 	command.PlayerCanUse = null
 
@@ -49,7 +59,7 @@ void function FSV_Init() {
 	command.m_Abbreviations = [ "ex" ]
 	command.Callback = FSV_CommandCallback_Extend
 	if( !GetConVarBool( "FSV_ENABLE_MAP_EXTENDING" ) )
-		command.PlayerCanUse = FSA_IsAdmin
+		command.PlayerCanUse = FSU_IsAdmin
 	FSCC_RegisterCommand( "extend", command )
 	command.PlayerCanUse = null
 
@@ -67,13 +77,12 @@ void function FSV_Init() {
 	command.m_Abbreviations = []
 	command.Callback = FSV_CommandCallback_Kick
 	if( !GetConVarBool( "FSV_ENABLE_KICK_VOTING" ) )
-		command.PlayerCanUse = FSA_IsAdmin
+		command.PlayerCanUse = FSU_IsAdmin
 	FSCC_RegisterCommand( "kick", command)
 
 	if( FSU_GetSettingIntFromConVar( "FSV_KICK_BLOCK" ) > 0 ){
 		FSV_UpdateKicked()
-		if( FSU_GetSettingIntFromConVar( "FSV_KICK_BLOCK" ) > 1 )
-			AddCallback_OnClientConnected(FSV_JoiningPlayerKickCheck)
+		AddCallback_OnClientConnected(FSV_JoiningPlayerKickCheck)
 	}
 }
 
@@ -200,7 +209,7 @@ string function FSV_GetNextMap() {
 		}
 
 		if(winners.len() > 1)
-			return winners[RandomInt(winners.len()-1)]
+			return winners[RandomInt(winners.len())]
 
 		return winners[0]
 	}
@@ -216,9 +225,14 @@ string function FSV_GetNextMap() {
 		}
 	}
 
+	if( validMaps.len() == 0 ) {
+		FSU_Error( "No eligible maps remain in the rotation!" )
+		return "mp_lobby"
+	}
+
 	// Return a random map if set
-	if( GetConVarInt( "FSV_RANDOM_MAP_ROTATION" ) && validMaps.len() > 2 ) {
-		return validMaps[RandomInt(validMaps.len()-1)]
+	if( GetConVarInt( "FSV_RANDOM_MAP_ROTATION" ) ) {
+		return validMaps[RandomInt(validMaps.len())]
 	}
 
 	// Return the next map
@@ -242,13 +256,7 @@ string function FSV_GetNextMap() {
 	FSU_Error( "Couldn't get the next map!" );
 
 	// If there is no valid next map, pick a random one
-	if( allMaps.len() == 1 )
-		return allMaps[0]
-
-	if( allMaps.len() == 0 )
-		return "mp_lobby"
-
-	return allMaps[RandomInt(allMaps.len()-1)]
+	return validMaps[RandomInt(validMaps.len())]
 }
 
 /**

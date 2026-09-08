@@ -14,6 +14,10 @@ Prints a message to global chat to inform players which features they can use
 based on which FSU modules are enabled. Also prints which modules are enabled
 to console
 
+#### `bool function FSU_IsAdmin( entity player )`
+
+Checks admin access through ServerAdmin when that optional module is enabled; otherwise returns `false`. Use this helper in modules that must work without ServerAdmin.
+
 #### `void function FSU_Error( string message )`
 
 Prints a message to the console and prepends "[FSU][ERRR]" to it
@@ -168,4 +172,3 @@ A deprecated FSU < v2 function used to create a poll
 #### `int function FSU_GetPollResultIndex ()`
 
 A deprecated FSU < v2 function used to get a poll result
-

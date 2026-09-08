@@ -5,7 +5,7 @@
 **DefaultValue:** `"1"`
 
 #### `FSA_OWNERS`
-**DefaultValue:** `"1000574542451,1008806725370"`
+**DefaultValue:** `""`
 
 #### `FSA_PREFIX_ADMINS_IN_CHAT`
 **DefaultValue:** `"1"`
@@ -14,17 +14,18 @@
 **DefaultValue:** `"1"`
 
 #### `FSA_ADMIN_UIDS`
-**DefaultValue:** `"1000574542451,1008806725370"`
+**DefaultValue:** `""`
 
 #### `FSA_ADMIN_PASSWORDS`
-**DefaultValue:** `"1234,0987"`
+**DefaultValue:** `""`
+
+Configure admin UIDs and passwords explicitly, with one password per UID in the same order. Existing configuration is not overwritten by these empty defaults; remove any old example credentials when upgrading.
 
 #### `FSA_USER_TAGS`
-**DefaultValue:** `"GAMER,2nd tag,NOOB"`
+**DefaultValue:** `""`
 
 #### `FSA_USER_TAG_COLORS`
-**DefaultValue:** `"%F,%T,%H"`
+**DefaultValue:** `""`
 
 #### `FSA_USER_TAG_UIDS`
-**DefaultValue:** `"1000574542451,1000574542451,1008806725370"`
-
+**DefaultValue:** `""`

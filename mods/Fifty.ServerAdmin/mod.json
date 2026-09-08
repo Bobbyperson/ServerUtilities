@@ -11,7 +11,7 @@
 		},
 		{
 			"Name": "FSA_OWNERS",
-			"DefaultValue": "1000574542451,1008806725370",
+			"DefaultValue": "",
 			"HelpString": "A list of owner UIDs separated by ','."
 		},
 		{
@@ -26,27 +26,27 @@
 		},
 		{
 			"Name": "FSA_ADMIN_UIDS",
-			"DefaultValue": "1000574542451,1008806725370",
+			"DefaultValue": "",
 			"HelpString": "A list of admin UIDs separated by ','."
 		},
 		{
 			"Name": "FSA_ADMIN_PASSWORDS",
-			"DefaultValue": "1234,0987",
+			"DefaultValue": "",
 			"HelpString": "A list of admin passwords separated by ','."
 		},
 		{
 			"Name": "FSA_USER_TAGS",
-			"DefaultValue": "GAMER,2nd tag,NOOB",
+			"DefaultValue": "",
 			"HelpString": "A list of tags separated by ','."
 		},
 		{
 			"Name": "FSA_USER_TAG_COLORS",
-			"DefaultValue": "%F,%T,%H",
+			"DefaultValue": "",
 			"HelpString": "A list of tag colors separated by ','."
 		},
 		{
 			"Name": "FSA_USER_TAG_UIDS",
-			"DefaultValue": "1000574542451,1000574542451,1008806725370",
+			"DefaultValue": "",
 			"HelpString": "A list of uids separated by ','."
 		}
 	],
