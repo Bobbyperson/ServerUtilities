@@ -247,6 +247,14 @@ void function FSV_SkipThread(){
  * @param args The arguments passed by the player
 */
 void function FSV_CommandCallback_Extend( entity player, array< string > args ) {
+	if( GetGameState() != eGameState.Playing ) {
+		FSU_PrivateChatMessage( player, "%EThe match can only be extended while it is playing." )
+		return
+	}
+	if( expect float( GetServerVar( "gameEndTime" ) ) >= FSV_GetMaxMatchEndTime() ) {
+		FSU_PrivateChatMessage( player, "%EThe match cannot be extended beyond 45 minutes total. Vote for the same map instead." )
+		return
+	}
 
 	if( FSU_IsAdmin( player ) && args.len() >= 1 ) {
 		FSV_ExtendMatch( float( args[0].tointeger() ) )

@@ -100,6 +100,8 @@ Skips the current map
 
 #### `void function FSV_ExtendMatch( float minutes )`
 
+Caps the resulting match end time at 45 minutes after `gameStartTime`, including extensions requested by admins. This does not alter next-map selection or the map replay settings.
+
 Extends the match
 ##### Argumets:
 - `minutes` The amount by which to extend the match
@@ -132,4 +134,3 @@ Localizes an array of map names
 #### `array <string> function FSV_GetMapArrayFromConVar( string convar )`
 
 Get a valid array from one of the map ConVars, discarding any invalid items and matching any partial entries to proper IDs
-

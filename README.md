@@ -37,7 +37,7 @@ All commands are case insensitive ( e.g. `commandFor` and `comandfor` are the sa
 
 *`!switch`* - Allows a player to switch teams. Admins can force change the team of any player.
 
-*`!extend`* - Allows players to vote to extend the match. Admins can force extend.
+*`!extend`* - Allows players to vote to extend the match. Admins can force extend. Both are capped at 45 minutes total from the match start, not 45 additional minutes. An extension near the cap adds only the remaining time; further extension votes are rejected once the cap is reached. The match then ends normally, and map rotation is unchanged.
 
 ## Admin commands
 *`!logout`* - Logout

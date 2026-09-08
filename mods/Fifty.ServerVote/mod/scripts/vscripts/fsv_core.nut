@@ -277,6 +277,13 @@ void function FSV_SkipMatch() {
 }
 
 /**
+ * Returns the latest end time allowed by match extensions.
+*/
+float function FSV_GetMaxMatchEndTime() {
+	return expect float( GetServerVar( "gameStartTime" ) ) + 45.0 * 60.0
+}
+
+/**
  * Extends the match
  * @param minutes The amount by which to extend the match
 */
@@ -284,6 +291,6 @@ void function FSV_ExtendMatch( float minutes ) {
 	// Credit:
 	// https://github.com/CTalvio/MentalEdge.FSU-fvnk/blob/main/mod/scripts/vscripts/fm.nut#L386-L394
 	float currentEndTime = expect float( GetServerVar( "gameEndTime" ) )
-	float newEndTime = currentEndTime + ( 60 * minutes )
+	float newEndTime = min( currentEndTime + ( 60 * minutes ), FSV_GetMaxMatchEndTime() )
 	SetServerVar( "gameEndTime", newEndTime )
 }
